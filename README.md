@@ -6,6 +6,13 @@ DataPersistence가 저장한 JSON 데이터를 읽어 시료·주문·재고 현
 
 ---
 
+> **[WORKLOG.md](Document/WORKLOG.md)**
+>
+> 교육과정 내 개인 프로젝트이기에, AI 활용이력 / Harness 도입,
+> 테스트 적용, 클린 코드 수행 증빙 목적으로 WORKLOG.md를 여기에 제출합니다.
+
+---
+
 ## 프로젝트 개요
 
 | 항목 | 내용 |
