@@ -24,6 +24,8 @@ protected:
     }
 };
 
+// ── Positive TCs ──────────────────────────────────────────────────────────────
+
 // DataPersistence schema: plain JSON array with avgProdTime key
 TEST_F(JsonSampleRepositoryTest, ReturnsAllSamples) {
     writeJson(R"([
@@ -53,18 +55,6 @@ TEST_F(JsonSampleRepositoryTest, ReturnsEmptyForEmptyArray) {
     EXPECT_TRUE(repo.getAll().empty());
 }
 
-TEST_F(JsonSampleRepositoryTest, ReturnsEmptyWhenNotAnArray) {
-    writeJson(R"({})");
-
-    JsonSampleRepository repo(tempFile_);
-    EXPECT_TRUE(repo.getAll().empty());
-}
-
-TEST_F(JsonSampleRepositoryTest, ThrowsWhenFileNotFound) {
-    JsonSampleRepository repo("nonexistent_file.json");
-    EXPECT_THROW(repo.getAll(), std::runtime_error);
-}
-
 TEST_F(JsonSampleRepositoryTest, ParsesZeroStock) {
     writeJson(R"([{"id":"S-005","name":"Zero","avgProdTime":0.6,"yield":0.88,"stock":0}])");
 
@@ -90,9 +80,77 @@ TEST_F(JsonSampleRepositoryTest, FindByIdReturnsCorrectSample) {
     EXPECT_EQ(result->stock, 100);
 }
 
+// ── Negative TCs ──────────────────────────────────────────────────────────────
+
+// 파일 없음
+TEST_F(JsonSampleRepositoryTest, ThrowsWhenFileNotFound) {
+    JsonSampleRepository repo("nonexistent_file.json");
+    EXPECT_THROW(repo.getAll(), std::runtime_error);
+}
+
+// 파일 없음 시 findById도 예외
+TEST_F(JsonSampleRepositoryTest, FindByIdThrowsWhenFileNotFound) {
+    JsonSampleRepository repo("nonexistent_file.json");
+    EXPECT_THROW(repo.findById("S-001"), std::runtime_error);
+}
+
+// 루트가 배열이 아닌 경우 (객체, 빈 파일 등) → 빈 결과 반환
+TEST_F(JsonSampleRepositoryTest, ReturnsEmptyWhenNotAnArray) {
+    writeJson(R"({})");
+
+    JsonSampleRepository repo(tempFile_);
+    EXPECT_TRUE(repo.getAll().empty());
+}
+
+// 빈 파일 → 빈 결과 반환
+TEST_F(JsonSampleRepositoryTest, ReturnsEmptyForEmptyFile) {
+    writeJson("");
+
+    JsonSampleRepository repo(tempFile_);
+    EXPECT_TRUE(repo.getAll().empty());
+}
+
+// 알 수 없는 필드가 있어도 파싱 정상 동작
+TEST_F(JsonSampleRepositoryTest, IgnoresUnknownFields) {
+    writeJson(R"([
+      {"id":"S-001","name":"Test","avgProdTime":0.5,"yield":0.92,"stock":100,
+       "unknownField":"someValue","anotherUnknown":42}
+    ])");
+
+    JsonSampleRepository repo(tempFile_);
+    const auto samples = repo.getAll();
+
+    ASSERT_EQ(samples.size(), 1u);
+    EXPECT_EQ(samples[0].id,   "S-001");
+    EXPECT_EQ(samples[0].stock, 100);
+}
+
+// 일부 필드 누락 시 기본값 사용 (id/name만 있는 최소 객체)
+TEST_F(JsonSampleRepositoryTest, UseDefaultValuesForMissingFields) {
+    writeJson(R"([{"id":"S-001","name":"Minimal"}])");
+
+    JsonSampleRepository repo(tempFile_);
+    const auto samples = repo.getAll();
+
+    ASSERT_EQ(samples.size(), 1u);
+    EXPECT_EQ(samples[0].id,   "S-001");
+    EXPECT_DOUBLE_EQ(samples[0].avgProdTime, 0.0);
+    EXPECT_DOUBLE_EQ(samples[0].yield,       0.0);
+    EXPECT_EQ(samples[0].stock, 0);
+}
+
+// 존재하지 않는 ID 검색 → nullopt 반환
 TEST_F(JsonSampleRepositoryTest, FindByIdReturnsNulloptWhenNotFound) {
     writeJson(R"([{"id":"S-001","name":"Test","avgProdTime":0.5,"yield":0.92,"stock":100}])");
 
     JsonSampleRepository repo(tempFile_);
     EXPECT_FALSE(repo.findById("S-999").has_value());
+}
+
+// 빈 ID 검색 → nullopt 반환
+TEST_F(JsonSampleRepositoryTest, FindByIdReturnsNulloptForEmptyId) {
+    writeJson(R"([{"id":"S-001","name":"Test","avgProdTime":0.5,"yield":0.92,"stock":100}])");
+
+    JsonSampleRepository repo(tempFile_);
+    EXPECT_FALSE(repo.findById("").has_value());
 }
