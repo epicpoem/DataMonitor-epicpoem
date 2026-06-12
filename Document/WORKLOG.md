@@ -373,7 +373,8 @@ SampleViewTest           :  8/8  PASSED
 
 ---
 ### 리뷰 (by User)
--
+- POC 요구사항 개발 완료 확인
 
 ### 다음 작업 지시
--
+- 최종 spec 리뷰
+- critical 빠진 내용 없으면 푸쉬 후 POC 개발 마무리
