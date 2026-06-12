@@ -34,6 +34,41 @@
 
 <!-- 실제 로그는 아래에 최신순으로 작성 -->
 
+## [2026-06-12] 핵심 기능 구현 및 테스트 프로젝트 구성
+
+### 작업 내용
+- `model/Sample.h`: Sample 데이터 모델 (id, name, avgProductionTime, yield, stock)
+- `repository/ISampleRepository.h`: 읽기 전용 Repository 인터페이스
+- `repository/JsonSampleRepository.h/.cpp`: JSON 파일 파싱 구현체 (자체 파서, 외부 의존성 없음)
+- `view/SampleView.h/.cpp`: 시료 목록 테이블 출력 (ostream 주입으로 테스트 용이성 확보)
+- `controller/MonitorController.h/.cpp`: 메인 메뉴 루프 및 흐름 제어
+- `main.cpp`: 진입점 - JSON 경로를 인자로 받거나 기본값 `data/samples.json` 사용
+- `data/samples.json`: 스펙 예시 시료 5건 샘플 데이터
+- `DataMonitorTest/`: gmock 기반 테스트 프로젝트 (JsonSampleRepositoryTest 5개, SampleViewTest 3개)
+- CLAUDE.md: 작업 시작 전 WORKLOG 미커밋 자동 커밋 규칙 추가
+
+### 커밋
+- `c1747a4` [AI-Docs] 워크플로우에 작업 시작 전 WORKLOG 미커밋 시 자동 커밋 규칙 추가
+- `1e5b6bb` [AI-Chore] Visual Studio 솔루션/프로젝트 구성 및 샘플 데이터 추가 (소스/테스트 포함)
+
+### 리뷰 요청
+- Visual Studio에서 빌드 확인 요청 (Debug x64 기준)
+  - DataMonitor 빌드 → `data/samples.json` 경로에서 실행 확인
+  - DataMonitorTest 빌드 → 테스트 8개 통과 여부 확인
+- `[AI-Chore]` 커밋에 Feature/Test 코드가 함께 포함된 점 양해 요청 (git add 범위 이슈)
+
+---
+### 리뷰 (by User)
+- 빌드는 잘 되는 것 확인
+- 콘솔창 출력 인코딩 깨짐
+- 인코딩 깨짐으로 JSON 생성은 확인하지 못함
+
+### 다음 작업 지시
+- 콘솔창 출력 인코딩 깨짐 대응 디버깅
+- 커밋 메시지에 양해 요청 내용 추가
+
+---
+
 ## [2026-06-12] PRD 및 FEATURES 문서 작성
 
 ### 작업 내용
