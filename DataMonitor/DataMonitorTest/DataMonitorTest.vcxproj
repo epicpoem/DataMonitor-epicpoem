@@ -82,6 +82,7 @@
     <!-- gtest main entry point -->
     <ClCompile Include="..\packages\gmock.1.11.0\lib\native\src\gtest\src\gtest_main.cc" />
     <!-- production sources under test (no main.cpp) -->
+    <ClCompile Include="..\DataMonitor\controller\MonitorController.cpp" />
     <ClCompile Include="..\DataMonitor\repository\JsonOrderRepository.cpp" />
     <ClCompile Include="..\DataMonitor\repository\JsonSampleRepository.cpp" />
     <ClCompile Include="..\DataMonitor\view\OrderView.cpp" />
@@ -89,10 +90,12 @@
     <!-- test sources -->
     <ClCompile Include="test\JsonOrderRepositoryTest.cpp" />
     <ClCompile Include="test\JsonSampleRepositoryTest.cpp" />
+    <ClCompile Include="test\MonitorControllerTest.cpp" />
     <ClCompile Include="test\OrderViewTest.cpp" />
     <ClCompile Include="test\SampleViewTest.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\DataMonitor\controller\MonitorController.h" />
     <ClInclude Include="..\DataMonitor\model\Order.h" />
     <ClInclude Include="..\DataMonitor\model\OrderStatus.h" />
     <ClInclude Include="..\DataMonitor\model\Sample.h" />
