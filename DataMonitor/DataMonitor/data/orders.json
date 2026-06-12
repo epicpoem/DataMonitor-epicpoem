@@ -1,0 +1,36 @@
+{
+  "orders": [
+    {
+      "orderNo": "ORD-20260416-0043",
+      "sampleId": "S-003",
+      "sampleName": "SiC 파워기판-6인치",
+      "customerName": "삼성전자 파운드리",
+      "quantity": 200,
+      "status": "PRODUCING"
+    },
+    {
+      "orderNo": "ORD-20260416-0044",
+      "sampleId": "S-001",
+      "sampleName": "실리콘 웨이퍼-8인치",
+      "customerName": "SK하이닉스",
+      "quantity": 150,
+      "status": "RESERVED"
+    },
+    {
+      "orderNo": "ORD-20260416-0045",
+      "sampleId": "S-004",
+      "sampleName": "포토레지스트-PR7",
+      "customerName": "인텔코리아",
+      "quantity": 300,
+      "status": "CONFIRMED"
+    },
+    {
+      "orderNo": "ORD-20260415-0021",
+      "sampleId": "S-002",
+      "sampleName": "GaN 에피택셀-4인치",
+      "customerName": "TSMC 연구소",
+      "quantity": 50,
+      "status": "RELEASE"
+    }
+  ]
+}

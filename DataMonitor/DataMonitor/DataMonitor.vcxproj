@@ -148,14 +148,21 @@
   <ItemGroup>
     <ClCompile Include="controller\MonitorController.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="repository\JsonOrderRepository.cpp" />
     <ClCompile Include="repository\JsonSampleRepository.cpp" />
+    <ClCompile Include="view\OrderView.cpp" />
     <ClCompile Include="view\SampleView.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="controller\MonitorController.h" />
+    <ClInclude Include="model\Order.h" />
+    <ClInclude Include="model\OrderStatus.h" />
     <ClInclude Include="model\Sample.h" />
+    <ClInclude Include="repository\IOrderRepository.h" />
     <ClInclude Include="repository\ISampleRepository.h" />
+    <ClInclude Include="repository\JsonOrderRepository.h" />
     <ClInclude Include="repository\JsonSampleRepository.h" />
+    <ClInclude Include="view\OrderView.h" />
     <ClInclude Include="view\SampleView.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
