@@ -183,3 +183,52 @@ SampleViewTest           : 3/3 PASSED
 
 ### 다음 작업 지시
 - WORKLOG 순서 변경 및 CLAUDE.md 업데이트
+
+---
+
+## [2026-06-12] MonitorController 테스트 가능 리팩토링 및 단위 테스트 추가
+
+### 작업 내용
+- `controller/MonitorController.h/.cpp`: `run()` 시그니처를 `run(istream& in, ostream& out)` 으로 변경 (기본값 cin/cout 유지)
+  - `showMainMenu`, `showAllSamples`, `showAllOrders` 내부 메서드도 `ostream&` 파라미터 수용
+  - `main.cpp` 무변경 (기본 파라미터 사용)
+- `DataMonitorTest/test/MonitorControllerTest.cpp`: gmock MockSampleRepository / MockOrderRepository 기반 단위 테스트 6개 추가
+  - 메뉴 1 선택 → `sampleRepo->getAll()` 호출 검증
+  - 메뉴 2 선택 → `orderRepo->getAll()` 호출 검증
+  - 메뉴 0 → 즉시 종료 확인
+  - 잘못된 입력 → 오류 메시지 출력 확인
+  - Repository 예외 발생 시 오류 메시지 출력 확인 (Sample/Order 각각)
+- `DataMonitorTest.vcxproj`: MonitorController.cpp, MonitorControllerTest.cpp 빌드 대상 추가
+
+### 테스트 결과
+```
+[==========] 22 tests from 5 test suites ran. (9 ms total)
+[  PASSED  ] 22 tests.
+
+MonitorControllerTest    : 6/6 PASSED
+JsonOrderRepositoryTest  : 5/5 PASSED
+JsonSampleRepositoryTest : 5/5 PASSED
+OrderViewTest            : 3/3 PASSED
+SampleViewTest           : 3/3 PASSED
+```
+
+### 커밋
+- `789000f` [AI-Refactoring] MonitorController::run()에 istream/ostream 파라미터 주입으로 테스트 가능 구조로 변경
+- `60146dd` [AI-Test] MonitorController Mock 기반 단위 테스트 추가 (6개) - 전체 22개 PASSED
+
+### 리뷰 요청
+- Visual Studio 리빌드 후 기존 동작(메인 메뉴, 시료/주문 조회) 정상 유지 여부 확인 요청
+- 전체 테스트 22개 PASSED 확인
+- 추가 개발 아이템 또는 마무리 여부 지시 요청
+
+---
+### 리뷰 (by User)
+- 정상 동작 확인
+- 시료, 주문 이외에도 필요 기능에 대해서도 기능 구현 필요
+- 자체적 구현이 아니라 ../DataPersistence 내부의 CRUD 기능을 활용하여 모니터링이 가능해야 함
+
+### 다음 작업 지시
+- ../DataPersistence 개발 진행 상황 파악
+- ../DataPersistence 개발 문서 내용 파악
+- ../DataPersistence 개발 문서 내 FEATURE에 기초하여 내용 리팩토링
+- ../DataPersistence 에서 구현된 CRUD 기반 필요 모니터링 기능 추가
