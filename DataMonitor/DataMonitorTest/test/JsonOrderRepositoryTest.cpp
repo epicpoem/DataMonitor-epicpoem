@@ -24,36 +24,40 @@ protected:
     }
 };
 
+// DataPersistence schema: plain JSON array, id field (not orderNo), no sampleName
 TEST_F(JsonOrderRepositoryTest, ReturnsAllOrders) {
-    writeJson(R"({
-      "orders": [
-        {"orderNo":"ORD-20260416-0043","sampleId":"S-003","sampleName":"SiC","customerName":"삼성","quantity":200,"status":"PRODUCING"},
-        {"orderNo":"ORD-20260416-0044","sampleId":"S-001","sampleName":"Si","customerName":"SK","quantity":150,"status":"RESERVED"}
-      ]
-    })");
+    writeJson(R"([
+      {"id":"ORD-20260416-0043","sampleId":"S-003","customerName":"삼성","quantity":200,"status":"PRODUCING",
+       "actualProductionQuantity":120,"productionStartTime":"2026-04-16T09:00:00","totalProductionTime":96.0},
+      {"id":"ORD-20260416-0044","sampleId":"S-001","customerName":"SK","quantity":150,"status":"RESERVED",
+       "actualProductionQuantity":0,"productionStartTime":"","totalProductionTime":0.0}
+    ])");
 
     JsonOrderRepository repo(tempFile_);
     const auto orders = repo.getAll();
 
     ASSERT_EQ(orders.size(), 2u);
 
-    EXPECT_EQ(orders[0].orderNo,      "ORD-20260416-0043");
+    EXPECT_EQ(orders[0].id,           "ORD-20260416-0043");
     EXPECT_EQ(orders[0].sampleId,     "S-003");
     EXPECT_EQ(orders[0].customerName, "삼성");
     EXPECT_EQ(orders[0].quantity,     200);
     EXPECT_EQ(orders[0].status,       OrderStatus::PRODUCING);
+    EXPECT_EQ(orders[0].actualProductionQuantity, 120);
+    EXPECT_EQ(orders[0].productionStartTime,      "2026-04-16T09:00:00");
+    EXPECT_DOUBLE_EQ(orders[0].totalProductionTime, 96.0);
 
     EXPECT_EQ(orders[1].status, OrderStatus::RESERVED);
 }
 
 TEST_F(JsonOrderRepositoryTest, ReturnsEmptyForEmptyArray) {
-    writeJson(R"({"orders":[]})");
+    writeJson(R"([])");
 
     JsonOrderRepository repo(tempFile_);
     EXPECT_TRUE(repo.getAll().empty());
 }
 
-TEST_F(JsonOrderRepositoryTest, ReturnsEmptyWhenNoOrdersKey) {
+TEST_F(JsonOrderRepositoryTest, ReturnsEmptyWhenNotAnArray) {
     writeJson(R"({})");
 
     JsonOrderRepository repo(tempFile_);
@@ -66,11 +70,14 @@ TEST_F(JsonOrderRepositoryTest, ThrowsWhenFileNotFound) {
 }
 
 TEST_F(JsonOrderRepositoryTest, ParsesAllOrderStatuses) {
-    writeJson(R"({"orders":[
-      {"orderNo":"A","sampleId":"S-001","sampleName":"a","customerName":"c","quantity":1,"status":"CONFIRMED"},
-      {"orderNo":"B","sampleId":"S-001","sampleName":"b","customerName":"c","quantity":1,"status":"RELEASE"},
-      {"orderNo":"C","sampleId":"S-001","sampleName":"c","customerName":"c","quantity":1,"status":"REJECTED"}
-    ]})");
+    writeJson(R"([
+      {"id":"A","sampleId":"S-001","customerName":"c","quantity":1,"status":"CONFIRMED",
+       "actualProductionQuantity":1,"productionStartTime":"","totalProductionTime":0.0},
+      {"id":"B","sampleId":"S-001","customerName":"c","quantity":1,"status":"RELEASE",
+       "actualProductionQuantity":1,"productionStartTime":"","totalProductionTime":0.0},
+      {"id":"C","sampleId":"S-001","customerName":"c","quantity":1,"status":"REJECTED",
+       "actualProductionQuantity":0,"productionStartTime":"","totalProductionTime":0.0}
+    ])");
 
     JsonOrderRepository repo(tempFile_);
     const auto orders = repo.getAll();
@@ -79,4 +86,30 @@ TEST_F(JsonOrderRepositoryTest, ParsesAllOrderStatuses) {
     EXPECT_EQ(orders[0].status, OrderStatus::CONFIRMED);
     EXPECT_EQ(orders[1].status, OrderStatus::RELEASE);
     EXPECT_EQ(orders[2].status, OrderStatus::REJECTED);
+}
+
+TEST_F(JsonOrderRepositoryTest, FindByIdReturnsCorrectOrder) {
+    writeJson(R"([
+      {"id":"ORD-001","sampleId":"S-001","customerName":"고객A","quantity":100,"status":"RESERVED",
+       "actualProductionQuantity":0,"productionStartTime":"","totalProductionTime":0.0},
+      {"id":"ORD-002","sampleId":"S-002","customerName":"고객B","quantity":50,"status":"CONFIRMED",
+       "actualProductionQuantity":50,"productionStartTime":"2026-01-01T10:00:00","totalProductionTime":10.0}
+    ])");
+
+    JsonOrderRepository repo(tempFile_);
+    const auto result = repo.findById("ORD-002");
+
+    ASSERT_TRUE(result.has_value());
+    EXPECT_EQ(result->id,           "ORD-002");
+    EXPECT_EQ(result->customerName, "고객B");
+    EXPECT_EQ(result->status,       OrderStatus::CONFIRMED);
+    EXPECT_EQ(result->actualProductionQuantity, 50);
+}
+
+TEST_F(JsonOrderRepositoryTest, FindByIdReturnsNulloptWhenNotFound) {
+    writeJson(R"([{"id":"ORD-001","sampleId":"S-001","customerName":"c","quantity":1,"status":"RESERVED",
+       "actualProductionQuantity":0,"productionStartTime":"","totalProductionTime":0.0}])");
+
+    JsonOrderRepository repo(tempFile_);
+    EXPECT_FALSE(repo.findById("ORD-999").has_value());
 }

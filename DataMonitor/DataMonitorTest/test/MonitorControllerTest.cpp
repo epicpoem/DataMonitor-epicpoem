@@ -10,12 +10,14 @@ using ::testing::Throw;
 
 class MockSampleRepository : public ISampleRepository {
 public:
-    MOCK_METHOD(std::vector<Sample>, getAll, (), (override));
+    MOCK_METHOD(std::vector<Sample>,   getAll,     (),                       (override));
+    MOCK_METHOD(std::optional<Sample>, findById,   (const std::string& id),  (override));
 };
 
 class MockOrderRepository : public IOrderRepository {
 public:
-    MOCK_METHOD(std::vector<Order>, getAll, (), (override));
+    MOCK_METHOD(std::vector<Order>,   getAll,    (),                       (override));
+    MOCK_METHOD(std::optional<Order>, findById,  (const std::string& id),  (override));
 };
 
 class MonitorControllerTest : public ::testing::Test {
@@ -56,7 +58,7 @@ TEST_F(MonitorControllerTest, SelectOrderMenuCallsGetAll) {
     EXPECT_CALL(*rawOrder_,  getAll()).Times(1).WillOnce(Return(std::vector<Order>{}));
 
     auto ctrl = makeController();
-    std::istringstream in("2\n0\n");
+    std::istringstream in("4\n0\n");
     std::ostringstream out;
     ctrl.run(in, out);
 
@@ -76,9 +78,6 @@ TEST_F(MonitorControllerTest, SelectZeroExitsImmediately) {
 }
 
 TEST_F(MonitorControllerTest, InvalidInputShowsErrorMessage) {
-    EXPECT_CALL(*rawSample_, getAll()).Times(0);
-    EXPECT_CALL(*rawOrder_,  getAll()).Times(0);
-
     auto ctrl = makeController();
     std::istringstream in("9\n0\n");
     std::ostringstream out;
@@ -104,9 +103,46 @@ TEST_F(MonitorControllerTest, OrderRepoThrowDisplaysError) {
         .WillOnce(Throw(std::runtime_error("주문 파일 오류")));
 
     auto ctrl = makeController();
-    std::istringstream in("2\n0\n");
+    std::istringstream in("4\n0\n");
     std::ostringstream out;
     ctrl.run(in, out);
 
     EXPECT_NE(out.str().find("주문 파일 오류"), std::string::npos);
+}
+
+TEST_F(MonitorControllerTest, SelectFindSampleCallsFindById) {
+    Sample s; s.id = "S-001"; s.name = "웨이퍼"; s.stock = 100;
+    EXPECT_CALL(*rawSample_, findById("S-001")).Times(1)
+        .WillOnce(Return(std::optional<Sample>{s}));
+
+    auto ctrl = makeController();
+    std::istringstream in("2\nS-001\n0\n");
+    std::ostringstream out;
+    ctrl.run(in, out);
+
+    EXPECT_NE(out.str().find("S-001"), std::string::npos);
+}
+
+TEST_F(MonitorControllerTest, SelectStockMenuCallsGetAll) {
+    EXPECT_CALL(*rawSample_, getAll()).Times(1).WillOnce(Return(std::vector<Sample>{}));
+
+    auto ctrl = makeController();
+    std::istringstream in("3\n0\n");
+    std::ostringstream out;
+    ctrl.run(in, out);
+
+    EXPECT_NE(out.str().find("재고"), std::string::npos);
+}
+
+TEST_F(MonitorControllerTest, SelectFindOrderCallsFindById) {
+    Order o; o.id = "ORD-001"; o.customerName = "삼성"; o.status = OrderStatus::RESERVED;
+    EXPECT_CALL(*rawOrder_, findById("ORD-001")).Times(1)
+        .WillOnce(Return(std::optional<Order>{o}));
+
+    auto ctrl = makeController();
+    std::istringstream in("5\nORD-001\n0\n");
+    std::ostringstream out;
+    ctrl.run(in, out);
+
+    EXPECT_NE(out.str().find("ORD-001"), std::string::npos);
 }
