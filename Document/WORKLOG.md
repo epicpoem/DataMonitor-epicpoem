@@ -232,3 +232,58 @@ SampleViewTest           : 3/3 PASSED
 - ../DataPersistence 개발 문서 내용 파악
 - ../DataPersistence 개발 문서 내 FEATURE에 기초하여 내용 리팩토링
 - ../DataPersistence 에서 구현된 CRUD 기반 필요 모니터링 기능 추가
+
+---
+
+## [2026-06-12] DataPersistence 연동 리팩토링 및 모니터링 기능 확장
+
+### 작업 내용
+- **DataPersistence 구조 파악**: JSON plain array 스키마, 필드명, FEATURE 문서 9개 분석
+- **JSON 스키마 연동 리팩토링** (`[AI-Refactoring]`):
+  - `Sample.avgProductionTime` → `avgProdTime` (DataPersistence 필드명 일치)
+  - `Order`: `orderNo` → `id`, `sampleName` 제거, 생산정보 3개 필드 추가 (`actualProductionQuantity`, `productionStartTime`, `totalProductionTime`)
+  - JSON 파서: `{"samples":[...]}` 래퍼키 방식 → 평탄 배열 `[...]` 방식으로 변경
+  - `ISampleRepository` / `IOrderRepository`: `findById()` 메서드 추가
+  - `JsonSampleRepository` / `JsonOrderRepository`: `findById()` 구현
+  - `data/samples.json` / `data/orders.json`: DataPersistence 호환 스키마로 업데이트
+- **모니터링 기능 확장** (`[AI-Feature]`):
+  - `SampleView`: `displayOne()` (단건 상세), `displayStock()` (재고 현황 테이블) 추가
+  - `OrderView`: `displayOne()` (단건 상세, PRODUCING/CONFIRMED/RELEASE 시 생산정보 포함) 추가
+  - `MonitorController`: 메뉴 5개로 확장
+    - `[1]` 시료 전체 조회 / `[2]` 시료 단건 조회 / `[3]` 재고 현황 조회
+    - `[4]` 주문 전체 조회 / `[5]` 주문 단건 조회 / `[0]` 종료
+- **테스트 전면 업데이트**: 기존 22개 → 35개 (13개 신규 추가, 전체 PASSED)
+
+### 테스트 결과
+```
+[==========] 35 tests from 5 test suites ran. (53 ms total)
+[  PASSED  ] 35 tests.
+
+JsonOrderRepositoryTest  : 7/7  PASSED  (findById 2개 신규)
+JsonSampleRepositoryTest : 7/7  PASSED  (findById 2개 신규)
+MonitorControllerTest    : 9/9  PASSED  (단건조회/재고 3개 신규)
+OrderViewTest            : 6/6  PASSED  (displayOne 3개 신규)
+SampleViewTest           : 6/6  PASSED  (displayOne/displayStock 3개 신규)
+```
+
+### 커밋
+- `445e094` [AI-Refactoring] DataPersistence JSON 스키마 연동 - 모델/파서/인터페이스 전면 리팩토링
+- `d946cbd` [AI-Feature] 시료/주문 단건 조회 및 재고 현황 조회 기능 추가 (메뉴 5개로 확장)
+
+### 리뷰 요청
+- Visual Studio 리빌드 후 실행 확인 요청
+  - `[1]` 시료 전체 조회 → `data/samples.json` (DataPersistence 포맷) 정상 출력 확인
+  - `[2]` 시료 단건 조회 → ID 입력 후 상세 출력 확인
+  - `[3]` 재고 현황 → 재고 테이블 출력 확인
+  - `[4]` 주문 전체 조회 → `data/orders.json` (DataPersistence 포맷) 정상 출력 확인
+  - `[5]` 주문 단건 조회 → 주문번호 입력 후 생산정보 포함 상세 출력 확인
+- DataPersistence 실제 JSON 파일 경로를 인자로 전달하여 연동 확인 요청
+  - 예: `DataMonitor.exe <DataPersistence경로>/samples.json <DataPersistence경로>/orders.json`
+- 전체 테스트 35개 PASSED 확인
+
+---
+### 리뷰 (by User)
+- 추가 요구사항 수현 및 정상 동작 확인
+
+### 다음 작업 지시
+- Negative TC 추가 및 테스트
