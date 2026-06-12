@@ -33,3 +33,27 @@
 ---
 
 <!-- 실제 로그는 아래에 최신순으로 작성 -->
+
+## [2026-06-12] PRD 및 FEATURES 문서 작성
+
+### 작업 내용
+- `Document/PRD.md` 작성: 사용자 관점의 요구사항 12개 정의 (핵심 요구사항, 시료 조회, 주문 조회, 데이터 최신성)
+- `Document/FEATURES/FEATURE-01-sample-list.md` 작성: 시료 전체 조회 기능 상세 요구사항
+- `Document/FEATURES/FEATURE-02-main-menu.md` 작성: 메인 메뉴 및 프로그램 흐름
+- `Document/FEATURES/FEATURE-03-order-list.md` 작성: 주문 전체 조회 기능 (선택 구현)
+
+### 커밋
+- 미커밋 (사용자 리뷰 후 커밋 예정)
+
+### 리뷰 요청
+- PRD의 요구사항 범위 확인: 주문 조회를 선택 구현으로 분류했는데 필수로 포함해야 하는지 확인 요청
+- FEATURES 문서 3개 구성이 적절한지 확인 요청 (메인 메뉴를 별도 FEATURE로 분리한 것이 맞는지)
+- 승인 후 코드 작업 시작
+
+---
+### 리뷰 (by User)
+- Feature는 별도 분리해도 무방함
+- PRD, Feature 각 리뷰 완료
+
+### 다음 작업 지시
+- 코드 작업 시작
