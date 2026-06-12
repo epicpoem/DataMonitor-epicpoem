@@ -1,4 +1,5 @@
 #pragma once
+#include <iostream>
 #include <memory>
 #include "../repository/ISampleRepository.h"
 #include "../repository/IOrderRepository.h"
@@ -9,7 +10,7 @@ class MonitorController {
 public:
     MonitorController(std::unique_ptr<ISampleRepository> sampleRepo,
                       std::unique_ptr<IOrderRepository>  orderRepo);
-    void run();
+    void run(std::istream& in = std::cin, std::ostream& out = std::cout);
 
 private:
     std::unique_ptr<ISampleRepository> sampleRepo_;
@@ -17,7 +18,7 @@ private:
     SampleView sampleView_;
     OrderView  orderView_;
 
-    void showMainMenu();
-    void showAllSamples();
-    void showAllOrders();
+    void showMainMenu(std::ostream& out);
+    void showAllSamples(std::ostream& out);
+    void showAllOrders(std::ostream& out);
 };
