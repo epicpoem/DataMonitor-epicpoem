@@ -82,16 +82,25 @@
     <!-- gtest main entry point -->
     <ClCompile Include="..\packages\gmock.1.11.0\lib\native\src\gtest\src\gtest_main.cc" />
     <!-- production sources under test (no main.cpp) -->
+    <ClCompile Include="..\DataMonitor\repository\JsonOrderRepository.cpp" />
     <ClCompile Include="..\DataMonitor\repository\JsonSampleRepository.cpp" />
+    <ClCompile Include="..\DataMonitor\view\OrderView.cpp" />
     <ClCompile Include="..\DataMonitor\view\SampleView.cpp" />
     <!-- test sources -->
+    <ClCompile Include="test\JsonOrderRepositoryTest.cpp" />
     <ClCompile Include="test\JsonSampleRepositoryTest.cpp" />
+    <ClCompile Include="test\OrderViewTest.cpp" />
     <ClCompile Include="test\SampleViewTest.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\DataMonitor\model\Order.h" />
+    <ClInclude Include="..\DataMonitor\model\OrderStatus.h" />
     <ClInclude Include="..\DataMonitor\model\Sample.h" />
+    <ClInclude Include="..\DataMonitor\repository\IOrderRepository.h" />
     <ClInclude Include="..\DataMonitor\repository\ISampleRepository.h" />
+    <ClInclude Include="..\DataMonitor\repository\JsonOrderRepository.h" />
     <ClInclude Include="..\DataMonitor\repository\JsonSampleRepository.h" />
+    <ClInclude Include="..\DataMonitor\view\OrderView.h" />
     <ClInclude Include="..\DataMonitor\view\SampleView.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
