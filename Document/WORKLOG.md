@@ -34,6 +34,38 @@
 
 <!-- 실제 로그는 아래에 최신순으로 작성 -->
 
+## [2026-06-12] 주문 전체 조회 기능 구현 (FEATURE-03)
+
+### 작업 내용
+- `model/Order.h`, `model/OrderStatus.h`: 주문 데이터 모델 및 상태 열거형 (RESERVED/REJECTED/PRODUCING/CONFIRMED/RELEASE)
+- `repository/IOrderRepository.h`, `JsonOrderRepository.h/.cpp`: JSON 주문 파싱 구현체
+- `view/OrderView.h/.cpp`: 주문 목록 테이블 출력 (주문번호/시료명/고객명/수량/상태)
+- `controller/MonitorController`: 메뉴 `[2] 주문 전체 조회` 추가, order repo 의존성 주입
+- `main.cpp`: orders.json 경로 인자 추가 (기본값 `data/orders.json`)
+- `data/orders.json`: 샘플 주문 데이터 4건 (PRODUCING/RESERVED/CONFIRMED/RELEASE 각 1건)
+- 테스트: JsonOrderRepositoryTest 5개, OrderViewTest 3개
+
+### 커밋
+- `5f5e037` [USER-Review] 시료 목록 조회 정상 동작 확인 - 다음 Feature 개발 시작
+- `59135a2` [AI-Feature] 주문 전체 조회 기능 구현 (FEATURE-03)
+- `a724f3c` [AI-Test] 주문 조회 테스트 추가
+
+### 리뷰 요청
+- Visual Studio 리빌드 후 확인 요청
+  - 메뉴 `[2] 주문 전체 조회` 동작 확인
+  - `DataMonitorTest` 빌드 → 전체 테스트 16개 통과 여부 확인
+- 주문 데이터 파일 경로 `data/orders.json`이 DataPersistence 출력 경로와 맞는지 확인 요청
+
+---
+### 리뷰 (by User)
+- 주문 전체 조회 기능 정상 동작 확인
+
+### 다음 작업 지시
+- 테스트 빌드 및 수행
+- 향후 테스트는 직접 수행 및 worklog에 내용 포함하여 보고
+
+---
+
 ## [2026-06-12] 콘솔 한글 인코딩 깨짐 수정
 
 ### 작업 내용
