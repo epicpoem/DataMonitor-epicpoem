@@ -3,6 +3,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <cctype>
+#include <algorithm>
 
 namespace {
 
@@ -85,6 +86,8 @@ void skipValue(const std::string& s, size_t& pos) {
     else                    readNumber(s, pos);
 }
 
+// DataPersistence JSON schema: plain array of objects
+// { "id", "name", "avgProdTime", "yield", "stock" }
 Sample parseSample(const std::string& s, size_t& pos) {
     if (pos >= s.size() || s[pos] != '{')
         throw std::runtime_error("Expected '{' for sample object");
@@ -108,8 +111,8 @@ Sample parseSample(const std::string& s, size_t& pos) {
             sample.id = readString(s, pos);
         } else if (key == "name") {
             sample.name = readString(s, pos);
-        } else if (key == "avgProductionTime") {
-            sample.avgProductionTime = std::stod(readNumber(s, pos));
+        } else if (key == "avgProdTime") {
+            sample.avgProdTime = std::stod(readNumber(s, pos));
         } else if (key == "yield") {
             sample.yield = std::stod(readNumber(s, pos));
         } else if (key == "stock") {
@@ -119,6 +122,27 @@ Sample parseSample(const std::string& s, size_t& pos) {
         }
     }
     return sample;
+}
+
+std::vector<Sample> parseArray(const std::string& content) {
+    std::vector<Sample> samples;
+    size_t pos = 0;
+    skipWs(content, pos);
+    if (pos >= content.size() || content[pos] != '[')
+        return samples;
+    ++pos;
+
+    while (pos < content.size()) {
+        skipWs(content, pos);
+        if (pos >= content.size()) break;
+        if (content[pos] == ']') break;
+        if (content[pos] == ',') { ++pos; continue; }
+        if (content[pos] == '{')
+            samples.push_back(parseSample(content, pos));
+        else
+            ++pos;
+    }
+    return samples;
 }
 
 } // namespace
@@ -133,36 +157,13 @@ std::vector<Sample> JsonSampleRepository::getAll() {
 
     std::ostringstream ss;
     ss << file.rdbuf();
-    const std::string content = ss.str();
+    return parseArray(ss.str());
+}
 
-    std::vector<Sample> samples;
-    size_t pos = 0;
-
-    const size_t samplesKey = content.find("\"samples\"");
-    if (samplesKey == std::string::npos)
-        return samples;
-
-    pos = samplesKey + 9;
-    skipWs(content, pos);
-    if (pos >= content.size() || content[pos] != ':')
-        throw std::runtime_error("Expected ':' after 'samples'");
-    ++pos;
-    skipWs(content, pos);
-
-    if (pos >= content.size() || content[pos] != '[')
-        throw std::runtime_error("Expected '[' for samples array");
-    ++pos;
-
-    while (pos < content.size()) {
-        skipWs(content, pos);
-        if (pos >= content.size()) break;
-        if (content[pos] == ']') break;
-        if (content[pos] == ',') { ++pos; continue; }
-        if (content[pos] == '{')
-            samples.push_back(parseSample(content, pos));
-        else
-            ++pos;
+std::optional<Sample> JsonSampleRepository::findById(const std::string& id) {
+    const auto all = getAll();
+    for (const auto& s : all) {
+        if (s.id == id) return s;
     }
-
-    return samples;
+    return std::nullopt;
 }

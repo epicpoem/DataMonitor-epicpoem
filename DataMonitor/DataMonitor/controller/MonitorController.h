@@ -20,5 +20,8 @@ private:
 
     void showMainMenu(std::ostream& out);
     void showAllSamples(std::ostream& out);
+    void showOneSample(std::istream& in, std::ostream& out);
+    void showStock(std::ostream& out);
     void showAllOrders(std::ostream& out);
+    void showOneOrder(std::istream& in, std::ostream& out);
 };

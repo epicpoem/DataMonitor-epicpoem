@@ -70,6 +70,9 @@ void skipValue(const std::string& s, size_t& pos) {
     }
 }
 
+// DataPersistence JSON schema: plain array of objects
+// { "id", "sampleId", "customerName", "quantity", "status",
+//   "actualProductionQuantity", "productionStartTime", "totalProductionTime" }
 Order parseOrder(const std::string& s, size_t& pos) {
     if (pos >= s.size() || s[pos] != '{')
         throw std::runtime_error("Expected '{' for order object");
@@ -89,23 +92,48 @@ Order parseOrder(const std::string& s, size_t& pos) {
         ++pos;
         skipWs(s, pos);
 
-        if (key == "orderNo") {
-            order.orderNo = readString(s, pos);
+        if (key == "id") {
+            order.id = readString(s, pos);
         } else if (key == "sampleId") {
             order.sampleId = readString(s, pos);
-        } else if (key == "sampleName") {
-            order.sampleName = readString(s, pos);
         } else if (key == "customerName") {
             order.customerName = readString(s, pos);
         } else if (key == "quantity") {
             order.quantity = std::stoi(readNumber(s, pos));
         } else if (key == "status") {
             order.status = orderStatusFromString(readString(s, pos));
+        } else if (key == "actualProductionQuantity") {
+            order.actualProductionQuantity = std::stoi(readNumber(s, pos));
+        } else if (key == "productionStartTime") {
+            order.productionStartTime = readString(s, pos);
+        } else if (key == "totalProductionTime") {
+            order.totalProductionTime = std::stod(readNumber(s, pos));
         } else {
             skipValue(s, pos);
         }
     }
     return order;
+}
+
+std::vector<Order> parseArray(const std::string& content) {
+    std::vector<Order> orders;
+    size_t pos = 0;
+    skipWs(content, pos);
+    if (pos >= content.size() || content[pos] != '[')
+        return orders;
+    ++pos;
+
+    while (pos < content.size()) {
+        skipWs(content, pos);
+        if (pos >= content.size()) break;
+        if (content[pos] == ']') break;
+        if (content[pos] == ',') { ++pos; continue; }
+        if (content[pos] == '{')
+            orders.push_back(parseOrder(content, pos));
+        else
+            ++pos;
+    }
+    return orders;
 }
 
 } // namespace
@@ -120,36 +148,13 @@ std::vector<Order> JsonOrderRepository::getAll() {
 
     std::ostringstream ss;
     ss << file.rdbuf();
-    const std::string content = ss.str();
+    return parseArray(ss.str());
+}
 
-    std::vector<Order> orders;
-    size_t pos = 0;
-
-    const size_t ordersKey = content.find("\"orders\"");
-    if (ordersKey == std::string::npos)
-        return orders;
-
-    pos = ordersKey + 8;
-    skipWs(content, pos);
-    if (pos >= content.size() || content[pos] != ':')
-        throw std::runtime_error("Expected ':' after 'orders'");
-    ++pos;
-    skipWs(content, pos);
-
-    if (pos >= content.size() || content[pos] != '[')
-        throw std::runtime_error("Expected '[' for orders array");
-    ++pos;
-
-    while (pos < content.size()) {
-        skipWs(content, pos);
-        if (pos >= content.size()) break;
-        if (content[pos] == ']') break;
-        if (content[pos] == ',') { ++pos; continue; }
-        if (content[pos] == '{')
-            orders.push_back(parseOrder(content, pos));
-        else
-            ++pos;
+std::optional<Order> JsonOrderRepository::findById(const std::string& id) {
+    const auto all = getAll();
+    for (const auto& o : all) {
+        if (o.id == id) return o;
     }
-
-    return orders;
+    return std::nullopt;
 }

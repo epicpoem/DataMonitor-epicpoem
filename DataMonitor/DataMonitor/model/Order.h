@@ -3,10 +3,12 @@
 #include "OrderStatus.h"
 
 struct Order {
-    std::string orderNo;
+    std::string id;
     std::string sampleId;
-    std::string sampleName;
     std::string customerName;
     int         quantity{ 0 };
     OrderStatus status{ OrderStatus::UNKNOWN };
+    int         actualProductionQuantity{ 0 };
+    std::string productionStartTime;
+    double      totalProductionTime{ 0.0 };
 };

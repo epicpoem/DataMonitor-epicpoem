@@ -5,7 +5,8 @@
 class JsonSampleRepository : public ISampleRepository {
 public:
     explicit JsonSampleRepository(std::string filePath);
-    std::vector<Sample> getAll() override;
+    std::vector<Sample>    getAll() override;
+    std::optional<Sample>  findById(const std::string& id) override;
 
 private:
     std::string filePath_;
