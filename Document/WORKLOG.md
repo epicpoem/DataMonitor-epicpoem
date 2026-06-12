@@ -287,3 +287,61 @@ SampleViewTest           : 6/6  PASSED  (displayOne/displayStock 3개 신규)
 
 ### 다음 작업 지시
 - Negative TC 추가 및 테스트
+
+---
+
+## [2026-06-12] Negative TC 추가 및 전체 테스트 57개 검증
+
+### 작업 내용
+- **JsonSampleRepositoryTest** (+5개 신규):
+  - `FindByIdThrowsWhenFileNotFound`: findById 시 파일 없으면 예외
+  - `ReturnsEmptyForEmptyFile`: 빈 파일 → 빈 결과
+  - `IgnoresUnknownFields`: 알 수 없는 필드 포함 시 정상 파싱
+  - `UseDefaultValuesForMissingFields`: 필드 누락 시 기본값(0/0.0) 적용
+  - `FindByIdReturnsNulloptForEmptyId`: 빈 문자열 ID → nullopt
+- **JsonOrderRepositoryTest** (+6개 신규):
+  - `FindByIdThrowsWhenFileNotFound`: findById 시 파일 없으면 예외
+  - `ReturnsEmptyForEmptyFile`: 빈 파일 → 빈 결과
+  - `ParsesUnknownStatusAsUnknown`: 미정의 status → UNKNOWN
+  - `ParsesEmptyStatusAsUnknown`: 빈 status 문자열 → UNKNOWN
+  - `IgnoresUnknownFields`: 알 수 없는 필드 포함 시 정상 파싱
+  - `FindByIdReturnsNulloptForEmptyId`: 빈 문자열 ID → nullopt
+- **MonitorControllerTest** (+6개 신규):
+  - `MultipleInvalidInputsThenExit`: 연속 잘못된 입력 3회 후 정상 종료
+  - `SampleGetAllThrowDisplaysError` / `OrderGetAllThrowDisplaysError` / `StockGetAllThrowDisplaysError`: 각 getAll 예외 → 오류 메시지
+  - `FindSampleThrowDisplaysError` / `FindOrderThrowDisplaysError`: findById 예외 → 오류 메시지
+  - `FindSampleNotFoundShowsMessage` / `FindOrderNotFoundShowsMessage`: 미존재 ID → "찾을 수 없습니다"
+- **OrderViewTest** (+3개 신규):
+  - `DisplaysOneRejectedWithoutProductionInfo`: REJECTED 상태 → 생산정보 없음
+  - `DisplaysOneConfirmedWithProductionInfo`: CONFIRMED 상태 → 생산정보 포함
+  - `DisplaysOneProducingWithEmptyStartTime`: 생산 시작 시간 없음 → "-" 표시
+- **SampleViewTest** (+2개 신규):
+  - `DisplaysStockEmptyMessage`: 재고 조회 빈 목록 → "없습니다"
+  - `DisplaysZeroStock`: 재고 0인 시료 경계값 정상 출력
+
+### 테스트 결과
+```
+[==========] 57 tests from 5 test suites ran. (54 ms total)
+[  PASSED  ] 57 tests.
+
+JsonOrderRepositoryTest  : 13/13 PASSED
+JsonSampleRepositoryTest : 12/12 PASSED
+MonitorControllerTest    : 15/15 PASSED
+OrderViewTest            :  9/9  PASSED
+SampleViewTest           :  8/8  PASSED
+```
+
+### 커밋
+- `1562cbf` [USER-Review] 추가 요구사항 정상 동작 확인 - Negative TC 추가 요청
+- `27fc852` [AI-Test] Negative TC 추가 - 전체 57개 PASSED (35 → 57, 22개 신규)
+
+### 리뷰 요청
+- 전체 테스트 57개 PASSED 확인
+- 추가 개발 아이템 또는 마무리 여부 지시 요청
+
+---
+### 리뷰 (by User)
+- 테스트 구현 확인
+
+### 다음 작업 지시
+- 리포지토리 최상위에 readme.md 파일 추가, 프로젝트 개요/개발내용/사용법/실행 결과 예시 작성, 이외 필요 내용 작성
